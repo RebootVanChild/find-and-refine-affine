@@ -1,6 +1,6 @@
 # find-and-refine-affine
 a ImageJ script that find affine transformation of landmarks, then refine the affine with elastix.
-# input (see example folder)
+# input
 * 5x_image: the czi file of the 5x image.
 * 20x_image: the czi file of the 20x image.
 * landmarks: the csv file of the landmarks exported from BigWarp.
@@ -9,6 +9,8 @@ a ImageJ script that find affine transformation of landmarks, then refine the af
 # output
 * affine_lse.csv : saved in landmarks file's folder. The affine transformation matrix.
 * affine_elastix.csv : saved in landmarks file's folder. The refined affine transformation matrix.
+# test data
+* HT530P1 Block A1 (5x, 20x image file too large to upload)
 # python dependencies
 itk, itk-elastix, numpy
 # components
