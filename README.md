@@ -6,6 +6,9 @@ a ImageJ script that find affine transformation of landmarks, then refine the af
 * landmarks: the csv file of the landmarks exported from BigWarp.
 * landmarks_channel: a txt file that specifies which channel of the image that the landmarks are based on.
 * elastix script: the elastix.py file.
+# output
+* affine_lse.csv : saved in landmarks file's folder. The affine transformation matrix.
+* affine_elastix.csv : saved in landmarks file's folder. The refined affine transformation matrix.
 # python dependencies
 itk, itk-elastix, numpy
 # components
