@@ -1,5 +1,5 @@
 # find-and-refine-affine
-a ImageJ script that find affine transformation of landmarks, then refine the affine with elastix.
+an ImageJ script that find affine transformation of landmarks, then refine the affine with elastix.
 # input
 * landmarks: the csv file of the landmarks exported from BigWarp.
 * use elastix?: whether use elastix to refine the alignment. If false, the following parameters can be left blank.
