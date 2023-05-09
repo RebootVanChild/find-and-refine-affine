@@ -1,10 +1,11 @@
 // dependencies: JAMA
 
-#@ File(label='5x_image') low_res_image_file
-#@ File(label='20x_image') high_res_image_file
 #@ File(label='landmarks') landmarks_file
-#@ File(label='landmarks channel') landmarks_channel_file
-#@ File(label='elastix script') elastix_script_file
+#@ Boolean(label='use elastix?', value=false) use_elastix
+#@ File(label='5x_image', required=false) low_res_image_file
+#@ File(label='20x_image', required=false) high_res_image_file
+#@ File(label='landmarks channel', required=false) landmarks_channel_file
+#@ File(label='elastix script', required=false) elastix_script_file
 
 import ij.IJ;
 import ij.measure.Calibration;
@@ -256,8 +257,6 @@ public static void writeImageInfo(ij.ImagePlus source_imp,ij.ImagePlus target_im
 
 // get landmarks folder
 String landmarks_folder=landmarks_file.getParent();
-// get elastix working folder
-String elastix_working_folder=elastix_script_file.getParent();
 
 // load landmarks
 print("loading landmarks ... ");
@@ -276,55 +275,59 @@ print("writing matrix to affine_lse.csv ... ");
 writeAffineToCsv(affine_matrix_lse_micron,landmarks_folder);
 print("finished.\n");
 
-// load channel index (the channel that the landmarks are based-on)
-print("loading landmarks channel index ... ");
-int channel_index=readLandmarksChannelIndex(landmarks_channel_file.getAbsolutePath());
-print("finished.\n");
-
-// call bio-format importer to load large bio image's specific channel
-print("loading images ... ");
-ij.ImagePlus low_res_image_imp = openImageChannel(low_res_image_file.getAbsolutePath(),channel_index);
-ij.ImagePlus high_res_image_imp = openImageChannel(high_res_image_file.getAbsolutePath(),channel_index);
-print("finished.\n");
-
-// downsample image and save
-print("downsampling source image ... ");
-ij.ImagePlus high_res_image_downsampled_imp=downsampleToVoxelSize(high_res_image_imp,10,10,10);
-print("finished.\n");
-print("saving downsampled source image ... ");
-IJ.saveAsTiff(high_res_image_downsampled_imp,elastix_working_folder+"/temp/source_downsampled.tif");
-print("finished.\n");
-print("downsampling target image ... ");
-ij.ImagePlus low_res_image_downsampled_imp=downsampleToVoxelSize(low_res_image_imp,10,10,10);
-print("finished.\n");
-
-// calculate bounding box
-print("calculating bounding box ... ");
-// transform affine matrix lse unit from microns to pixels
-int[] bounding_box=find_bounding_box(affine_matrix_lse_micron,high_res_image_downsampled_imp,low_res_image_downsampled_imp);
-print("finished.\n");
-
-// crop target image and save
-print("croping downsampled target image ... ");
-ij.ImagePlus low_res_image_downsampled_cropped_imp = new Duplicator().run(low_res_image_downsampled_imp);
-low_res_image_downsampled_cropped_imp.setStack(low_res_image_downsampled_cropped_imp.getStack().crop(bounding_box[0],bounding_box[1],bounding_box[2],bounding_box[3],bounding_box[4],bounding_box[5]));
-print("finished.\n");
-print("saving downsampled croped target image ... ");
-IJ.saveAsTiff(low_res_image_downsampled_cropped_imp,elastix_working_folder+"/temp/target_downsampled_croped.tif");
-print("finished.\n");
-
-// write itk pointsets to files
-print("writing itk pointsets to files ... ");
-writeItkPointSetsToTxt(landmarks_src,landmarks_tgt,high_res_image_downsampled_imp,low_res_image_downsampled_imp,bounding_box,elastix_working_folder);
-print("finished.\n");
-
-// write image info for elastix
-print("writing image info for elastix ... ");
-writeImageInfo(high_res_image_downsampled_imp,low_res_image_downsampled_imp,bounding_box,elastix_working_folder);
-print("finished.\n");
-
-// call .py landmarks_folder
-print("running elastix ... ");
-task = ("python "+elastix_script_file.getAbsolutePath()+" "+landmarks_folder).execute();
-task.waitFor()
-print("finished.\n");
+if(use_elastix){
+	// get elastix working folder
+	String elastix_working_folder=elastix_script_file.getParent();
+	// load channel index (the channel that the landmarks are based-on)
+	print("loading landmarks channel index ... ");
+	int channel_index=readLandmarksChannelIndex(landmarks_channel_file.getAbsolutePath());
+	print("finished.\n");
+	
+	// call bio-format importer to load large bio image's specific channel
+	print("loading images ... ");
+	ij.ImagePlus low_res_image_imp = openImageChannel(low_res_image_file.getAbsolutePath(),channel_index);
+	ij.ImagePlus high_res_image_imp = openImageChannel(high_res_image_file.getAbsolutePath(),channel_index);
+	print("finished.\n");
+	
+	// downsample image and save
+	print("downsampling source image ... ");
+	ij.ImagePlus high_res_image_downsampled_imp=downsampleToVoxelSize(high_res_image_imp,10,10,10);
+	print("finished.\n");
+	print("saving downsampled source image ... ");
+	IJ.saveAsTiff(high_res_image_downsampled_imp,elastix_working_folder+"/temp/source_downsampled.tif");
+	print("finished.\n");
+	print("downsampling target image ... ");
+	ij.ImagePlus low_res_image_downsampled_imp=downsampleToVoxelSize(low_res_image_imp,10,10,10);
+	print("finished.\n");
+	
+	// calculate bounding box
+	print("calculating bounding box ... ");
+	// transform affine matrix lse unit from microns to pixels
+	int[] bounding_box=find_bounding_box(affine_matrix_lse_micron,high_res_image_downsampled_imp,low_res_image_downsampled_imp);
+	print("finished.\n");
+	
+	// crop target image and save
+	print("croping downsampled target image ... ");
+	ij.ImagePlus low_res_image_downsampled_cropped_imp = new Duplicator().run(low_res_image_downsampled_imp);
+	low_res_image_downsampled_cropped_imp.setStack(low_res_image_downsampled_cropped_imp.getStack().crop(bounding_box[0],bounding_box[1],bounding_box[2],bounding_box[3],bounding_box[4],bounding_box[5]));
+	print("finished.\n");
+	print("saving downsampled croped target image ... ");
+	IJ.saveAsTiff(low_res_image_downsampled_cropped_imp,elastix_working_folder+"/temp/target_downsampled_croped.tif");
+	print("finished.\n");
+	
+	// write itk pointsets to files
+	print("writing itk pointsets to files ... ");
+	writeItkPointSetsToTxt(landmarks_src,landmarks_tgt,high_res_image_downsampled_imp,low_res_image_downsampled_imp,bounding_box,elastix_working_folder);
+	print("finished.\n");
+	
+	// write image info for elastix
+	print("writing image info for elastix ... ");
+	writeImageInfo(high_res_image_downsampled_imp,low_res_image_downsampled_imp,bounding_box,elastix_working_folder);
+	print("finished.\n");
+	
+	// call .py landmarks_folder
+	print("running elastix ... ");
+	task = ("python "+elastix_script_file.getAbsolutePath()+" "+landmarks_folder).execute();
+	task.waitFor()
+	print("finished.\n");
+}
