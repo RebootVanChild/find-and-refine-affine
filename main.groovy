@@ -1,5 +1,3 @@
-// dependencies: JAMA
-
 #@ File(label='landmarks') landmarks_file
 #@ Boolean(label='use elastix?', value=false) use_elastix
 #@ File(label='5x_image', required=false) low_res_image_file
