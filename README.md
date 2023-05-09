@@ -10,8 +10,6 @@ an ImageJ script that find affine transformation of landmarks, then refine the a
 # output
 * affine_lse.csv : saved in landmarks file's folder. The affine transformation matrix.
 * affine_elastix.csv (if use elastix) : saved in landmarks file's folder. The refined affine transformation matrix.
-# test data
-* HT530P1 Block A1 (5x, 20x image file too large to upload)
 # python dependencies
 itk, itk-elastix, numpy
 # components
