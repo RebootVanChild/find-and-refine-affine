@@ -325,7 +325,7 @@ if(use_elastix){
 	
 	// call .py landmarks_folder
 	print("running elastix ... ");
-	task = ("python "+elastix_script_file.getAbsolutePath()+" "+landmarks_folder).execute();
+	task = ("python "+"\""+elastix_script_file.getAbsolutePath()+"\""+" "+"\""+landmarks_folder+"\"").execute();
 	task.waitFor()
 	print("finished.\n");
 }
